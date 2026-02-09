@@ -64,69 +64,31 @@ Analyze how OpenMP scheduling strategies affect performance of a dependency-awar
 
 ---
 
-## Static Scheduling
+## Q2 — Scheduling Comparison
 
-| Threads | Time (s) |
-| ------- | -------- |
-| 1       | 0.0592   |
-| 2       | 0.0306   |
-| 3       | 0.0345   |
-| 4       | 0.0325   |
-| 5       | 0.0303   |
-| 6       | 0.0314   |
-| 7       | 0.0352   |
-| 8       | 0.0362   |
-| 9       | 0.0358   |
-| 10      | 0.0371   |
-| 11      | 0.0431   |
-| 12      | 0.0870   |
+This table compares execution time of the Smith–Waterman wavefront algorithm under different OpenMP scheduling strategies.
 
----
+| Threads | Static Time (s) | Dynamic Time (s) | Guided Time (s) |
+| ------- | --------------- | ---------------- | --------------- |
+| 1       | 0.0592          | 0.1219           | 0.0592          |
+| 2       | 0.0306          | 0.3276           | 0.0378          |
+| 3       | 0.0345          | 0.3810           | 0.0392          |
+| 4       | 0.0325          | 0.3746           | 0.0419          |
+| 5       | 0.0303          | 0.3688           | 0.0447          |
+| 6       | 0.0314          | 0.3112           | 0.0482          |
+| 7       | 0.0352          | 0.3121           | 0.0470          |
+| 8       | 0.0362          | 0.2822           | 0.0488          |
+| 9       | 0.0358          | 0.2674           | 0.0539          |
+| 10      | 0.0371          | 0.2847           | 0.0565          |
+| 11      | 0.0431          | 0.5469           | 0.0635          |
+| 12      | 0.0870          | 0.7498           | 0.1856          |
 
-## Dynamic Scheduling
+### Observations
 
-| Threads | Time (s) |
-| ------- | -------- |
-| 1       | 0.1219   |
-| 2       | 0.3276   |
-| 3       | 0.3810   |
-| 4       | 0.3746   |
-| 5       | 0.3688   |
-| 6       | 0.3112   |
-| 7       | 0.3121   |
-| 8       | 0.2822   |
-| 9       | 0.2674   |
-| 10      | 0.2847   |
-| 11      | 0.5469   |
-| 12      | 0.7498   |
-
----
-
-## Guided Scheduling
-
-| Threads | Time (s) |
-| ------- | -------- |
-| 1       | 0.0592   |
-| 2       | 0.0378   |
-| 3       | 0.0392   |
-| 4       | 0.0419   |
-| 5       | 0.0447   |
-| 6       | 0.0482   |
-| 7       | 0.0470   |
-| 8       | 0.0488   |
-| 9       | 0.0539   |
-| 10      | 0.0565   |
-| 11      | 0.0635   |
-| 12      | 0.1856   |
-
----
-
-## Observations
-
-* Static scheduling performs best at low thread counts.
-* Dynamic scheduling introduces heavy overhead.
-* Guided scheduling balances workload moderately.
-* Wavefront dependencies restrict available parallelism.
+* Static scheduling provides the best low-thread performance due to minimal overhead.
+* Dynamic scheduling introduces significant scheduling overhead, resulting in slower execution.
+* Guided scheduling offers moderate load balancing but still suffers from dependency limits.
+* Wavefront dependencies restrict effective parallel scaling.
 
 ---
 
