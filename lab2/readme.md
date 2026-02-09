@@ -10,7 +10,7 @@
 
 ## Objective
 
-Evaluate how a compute-intensive nested molecular interaction kernel scales with increasing OpenMP threads while keeping the total workload fixed.
+Evaluate how a compute-intensive nested molecular interaction kernel scales with increasing OpenMP threads while keeping total workload fixed.
 
 ---
 
@@ -20,29 +20,30 @@ Evaluate how a compute-intensive nested molecular interaction kernel scales with
 | ------- | -------- | ------- | ---------- |
 | 1       | 1.6619   | 1.00    | 1.00       |
 | 2       | 1.2724   | 1.31    | 0.66       |
-| 3       | 0.9478   | 1.75    | 0.58       |
 | 4       | 0.7591   | 2.19    | 0.55       |
-| 5       | 0.6174   | 2.69    | 0.54       |
 | 6       | 0.5377   | 3.09    | 0.52       |
-| 7       | 0.4601   | 3.61    | 0.52       |
 | 8       | 0.4322   | 3.85    | 0.48       |
-| 9       | 0.3852   | 4.31    | 0.48       |
-| 10      | 0.3607   | 4.61    | 0.46       |
-| 11      | 0.3390   | 4.90    | 0.45       |
 | 12      | 0.3241   | 5.13    | 0.43       |
 
 ---
 
 ## Observations
 
-* Execution time decreases steadily with thread count.
-* Speedup is strong but sub-linear due to synchronization overhead.
-* Efficiency declines gradually as shared memory contention increases.
-* Scaling beyond physical cores shows diminishing returns.
+* Moving from **1 → 2 threads**, execution time drops noticeably because independent loop iterations are parallelized. Speedup improves, but efficiency is already below 100% due to thread management overhead.
+
+* At **4 threads**, the kernel shows strong scaling. Multiple cores execute pairwise calculations concurrently. Efficiency drops slightly because threads compete for shared memory bandwidth.
+
+* At **6 threads**, speedup continues to grow, but gains begin slowing. Memory access latency and cache pressure increase as more threads request shared data.
+
+* At **8 threads**, performance still improves, but efficiency declines further. Hyper-threading helps throughput, yet synchronization overhead becomes more visible.
+
+* At **12 threads**, speedup increases modestly while efficiency drops. The workload becomes partially memory-bound, limiting perfect scaling.
+
+Overall, this kernel scales well because computation dominates, but shared memory contention prevents linear speedup.
 
 ---
 
-## Graph — Scaling Behavior
+## Graph
 
 ![Q1 Scaling](q1_molecular/q1graph.png)
 
@@ -50,7 +51,7 @@ Evaluate how a compute-intensive nested molecular interaction kernel scales with
 
 ## Interpretation
 
-The nested interaction kernel benefits significantly from parallel execution. Performance is bounded by shared memory access and thread coordination overhead, demonstrating realistic strong scaling behavior.
+The workload benefits from parallel execution because interactions are largely independent. Scaling is limited by synchronization overhead and memory bandwidth — classic strong scaling behavior in shared-memory systems.
 
 ---
 
@@ -60,39 +61,70 @@ The nested interaction kernel benefits significantly from parallel execution. Pe
 
 ## Objective
 
-Analyze how OpenMP scheduling strategies affect performance of a dependency-aware wavefront dynamic programming algorithm.
+Analyze how OpenMP scheduling strategies influence a dependency-aware wavefront dynamic programming algorithm.
 
 ---
 
-## Q2 — Scheduling Comparison
+## Static Scheduling
 
-This table compares execution time of the Smith–Waterman wavefront algorithm under different OpenMP scheduling strategies.
+| Threads | Time (s) | Speedup | Efficiency |
+| ------- | -------- | ------- | ---------- |
+| 1       | 0.0592   | 1.00    | 1.00       |
+| 2       | 0.0306   | 1.94    | 0.97       |
+| 4       | 0.0325   | 1.82    | 0.46       |
+| 6       | 0.0314   | 1.89    | 0.32       |
+| 8       | 0.0362   | 1.63    | 0.20       |
+| 12      | 0.0870   | 0.68    | 0.06       |
 
-| Threads | Static Time (s) | Dynamic Time (s) | Guided Time (s) |
-| ------- | --------------- | ---------------- | --------------- |
-| 1       | 0.0592          | 0.1219           | 0.0592          |
-| 2       | 0.0306          | 0.3276           | 0.0378          |
-| 3       | 0.0345          | 0.3810           | 0.0392          |
-| 4       | 0.0325          | 0.3746           | 0.0419          |
-| 5       | 0.0303          | 0.3688           | 0.0447          |
-| 6       | 0.0314          | 0.3112           | 0.0482          |
-| 7       | 0.0352          | 0.3121           | 0.0470          |
-| 8       | 0.0362          | 0.2822           | 0.0488          |
-| 9       | 0.0358          | 0.2674           | 0.0539          |
-| 10      | 0.0371          | 0.2847           | 0.0565          |
-| 11      | 0.0431          | 0.5469           | 0.0635          |
-| 12      | 0.0870          | 0.7498           | 0.1856          |
+### Static Observations
 
-### Observations
-
-* Static scheduling provides the best low-thread performance due to minimal overhead.
-* Dynamic scheduling introduces significant scheduling overhead, resulting in slower execution.
-* Guided scheduling offers moderate load balancing but still suffers from dependency limits.
-* Wavefront dependencies restrict effective parallel scaling.
+* At low threads, static scheduling is efficient because work distribution has minimal overhead.
+* As threads increase, diagonal dependencies limit parallel execution.
+* Efficiency drops because threads idle while waiting for wavefront completion.
+* At high thread counts, scheduling imbalance dominates, reducing speedup.
 
 ---
 
-## Graph — Scheduling Comparison
+## Dynamic Scheduling
+
+| Threads | Time (s) | Speedup | Efficiency |
+| ------- | -------- | ------- | ---------- |
+| 1       | 0.1219   | 1.00    | 1.00       |
+| 2       | 0.3276   | 0.37    | 0.18       |
+| 4       | 0.3746   | 0.33    | 0.08       |
+| 6       | 0.3112   | 0.39    | 0.07       |
+| 8       | 0.2822   | 0.43    | 0.05       |
+| 12      | 0.7498   | 0.16    | 0.01       |
+
+### Dynamic Observations
+
+* Dynamic scheduling introduces high runtime overhead.
+* Dependency constraints reduce parallel opportunities.
+* Thread coordination cost exceeds useful computation.
+* Scaling becomes inefficient as scheduling overhead dominates.
+
+---
+
+## Guided Scheduling
+
+| Threads | Time (s) | Speedup | Efficiency |
+| ------- | -------- | ------- | ---------- |
+| 1       | 0.0592   | 1.00    | 1.00       |
+| 2       | 0.0378   | 1.57    | 0.78       |
+| 4       | 0.0419   | 1.41    | 0.35       |
+| 6       | 0.0482   | 1.23    | 0.21       |
+| 8       | 0.0488   | 1.21    | 0.15       |
+| 12      | 0.1856   | 0.32    | 0.03       |
+
+### Guided Observations
+
+* Guided scheduling balances overhead and workload better than dynamic.
+* Dependency limits still restrict concurrency.
+* Efficiency declines as threads exceed available wavefront parallelism.
+
+---
+
+## Graph
 
 ![Q2 Scheduling](q2_alignment/q2graph.png)
 
@@ -100,7 +132,7 @@ This table compares execution time of the Smith–Waterman wavefront algorithm u
 
 ## Interpretation
 
-The algorithm’s diagonal dependency structure limits scalability. Scheduling overhead dominates at higher thread counts, demonstrating that algorithm structure governs achievable parallelism.
+Wavefront dependencies restrict scalable parallelism. Scheduling overhead becomes dominant as thread count rises, showing that algorithm structure determines achievable performance.
 
 ---
 
@@ -110,39 +142,68 @@ The algorithm’s diagonal dependency structure limits scalability. Scheduling o
 
 ## Objective
 
-Evaluate spatial OpenMP parallelization of a 2D heat diffusion model using execution time, speedup, efficiency, and throughput.
+Evaluate spatial OpenMP stencil parallelization using execution time, speedup, efficiency, and throughput.
 
 ---
 
-## Performance Results
+## Static Scheduling
 
-| Threads | Time (s) | Speedup | Efficiency | Throughput (Mcells/s) |
-| ------- | -------- | ------- | ---------- | --------------------- |
-| 1       | 1.8938   | 1.00    | 1.00       | 421.58                |
-| 2       | 1.2363   | 1.53    | 0.77       | 645.79                |
-| 3       | 1.0606   | 1.79    | 0.60       | 752.76                |
-| 4       | 0.9435   | 2.01    | 0.50       | 846.19                |
-| 5       | 0.8716   | 2.17    | 0.43       | 916.06                |
-| 6       | 0.8310   | 2.28    | 0.38       | 960.72                |
-| 7       | 0.8054   | 2.35    | 0.34       | 991.30                |
-| 8       | 0.8498   | 2.23    | 0.28       | 939.48                |
-| 9       | 0.7755   | 2.44    | 0.27       | 1029.47               |
-| 10      | 0.8009   | 2.36    | 0.24       | 996.84                |
-| 11      | 0.8411   | 2.25    | 0.20       | 949.19                |
-| 12      | 0.9041   | 2.09    | 0.17       | 883.07                |
+| Threads | Time   | Speedup | Efficiency | Throughput |
+| ------- | ------ | ------- | ---------- | ---------- |
+| 1       | 1.8938 | 1.00    | 1.00       | 421.58     |
+| 2       | 1.2363 | 1.53    | 0.77       | 645.79     |
+| 4       | 0.9435 | 2.01    | 0.50       | 846.19     |
+| 6       | 0.8310 | 2.28    | 0.38       | 960.72     |
+| 8       | 0.8498 | 2.23    | 0.28       | 939.48     |
+| 12      | 0.9041 | 2.09    | 0.17       | 883.07     |
 
----
+### Static Observations
 
-## Observations
-
-* Performance improves until memory bandwidth limits scaling.
-* Throughput peaks at moderate thread counts.
-* Efficiency declines due to memory contention.
-* Numerical correctness is preserved.
+* Early scaling shows strong gains due to independent grid updates.
+* Memory bandwidth pressure increases with threads.
+* Efficiency declines as cache contention grows.
 
 ---
 
-## Graph — Performance Scaling
+## Dynamic Scheduling
+
+| Threads | Time   | Speedup | Efficiency | Throughput |
+| ------- | ------ | ------- | ---------- | ---------- |
+| 1       | 1.9392 | 1.00    | 1.00       | 411.71     |
+| 2       | 1.4179 | 1.37    | 0.68       | 563.10     |
+| 4       | 1.2461 | 1.56    | 0.39       | 640.71     |
+| 6       | 0.9632 | 2.01    | 0.34       | 828.87     |
+| 8       | 0.8848 | 2.19    | 0.27       | 902.31     |
+| 12      | 0.9231 | 2.10    | 0.18       | 864.95     |
+
+### Dynamic Observations
+
+* Load balancing improves mid-range scaling.
+* Overhead prevents ideal speedup.
+* Memory access contention dominates at higher threads.
+
+---
+
+## Guided Scheduling
+
+| Threads | Time   | Speedup | Efficiency | Throughput |
+| ------- | ------ | ------- | ---------- | ---------- |
+| 1       | 1.8957 | 1.00    | 1.00       | 421.16     |
+| 2       | 1.2686 | 1.49    | 0.75       | 629.38     |
+| 4       | 0.9364 | 2.02    | 0.51       | 852.59     |
+| 6       | 0.8173 | 2.32    | 0.39       | 976.82     |
+| 8       | 0.7601 | 2.49    | 0.31       | 1050.46    |
+| 12      | 0.9258 | 2.05    | 0.17       | 862.36     |
+
+### Guided Observations
+
+* Guided scheduling achieves best mid-range scaling.
+* Throughput peaks before memory saturation.
+* Efficiency falls once bandwidth becomes limiting.
+
+---
+
+## Graph
 
 ![Q3 Performance](q3_heat/q3graph.png)
 
@@ -150,7 +211,7 @@ Evaluate spatial OpenMP parallelization of a 2D heat diffusion model using execu
 
 ## Interpretation
 
-The stencil-based heat simulation parallelizes effectively but becomes memory-bound at higher concurrency. Scheduling strategy and memory behavior determine performance limits.
+The stencil workload parallelizes effectively but becomes memory-bound as concurrency rises. Scheduling affects how efficiently memory bandwidth is utilized.
 
 ---
 
@@ -158,15 +219,14 @@ The stencil-based heat simulation parallelizes effectively but becomes memory-bo
 
 # Overall Discussion
 
-* Compute-heavy kernels scale best.
-* Dependency-driven algorithms limit concurrency.
-* Memory bandwidth becomes a bottleneck at high thread counts.
-* Scheduling strategy strongly influences performance.
+* Compute-heavy workloads scale better than dependency-bound algorithms.
+* Scheduling overhead and memory bandwidth limit scalability.
+* Efficiency naturally declines as thread contention increases.
 
 ---
 
 # Conclusion
 
-OpenMP parallelization delivers measurable acceleration, but scalability is governed by algorithm structure, synchronization overhead, and hardware limits. Effective optimization balances concurrency with system constraints.
+OpenMP parallelization delivers strong acceleration, but real-world scaling is governed by algorithm structure, synchronization overhead, and memory behavior.
 
 ---
