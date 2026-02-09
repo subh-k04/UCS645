@@ -1,7 +1,9 @@
 # Lab 2 — Parallel Performance Experiments using OpenMP
 
 **Course:** UCS645 — Parallel & Distributed Computing
+
 **Platform:** AMD Ryzen 5 5500U (6 cores / 12 threads)
+
 **Environment:** Linux (WSL)
 
 ---
