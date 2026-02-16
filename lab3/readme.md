@@ -1,257 +1,229 @@
-# Parallel Correlation Matrix Computation using OpenMP
-UCS645 – Parallel & Distributed Computing
+# Parallel Correlation Matrix Computation
 
-============================================================
+---
 
-1. Problem Description
+## 1. Overview
 
-Given a matrix of size:
+This project computes the **Pearson correlation coefficient** between all pairs of row vectors in a matrix of size **ny × nx**.
 
-- ny rows
-- nx columns
+Each row represents an input vector.  
+For every pair *(i, j)* such that:
 
-Each row represents a vector of length nx.
-
-For all pairs (i, j) such that:
-
+```
 0 ≤ j ≤ i < ny
+```
 
-we compute the Pearson correlation coefficient between row i and row j.
+the correlation between `row_i` and `row_j` is calculated and stored in:
 
-The result is stored in:
+```
+result[i + j * ny]
+```
 
-result[i + j*ny]
+Only the **lower triangular matrix** is computed to avoid redundant calculations.
 
-The computational complexity is:
+All arithmetic operations use **double precision** for numerical stability.
 
-O(ny^2 × nx)
+---
 
-This makes the problem computationally intensive and suitable for parallel optimization.
+## 2. Implemented Versions
 
-============================================================
+Three implementations were developed and compared:
 
-2. Mathematical Background
+| Version | Description |
+|----------|------------|
+| Sequential | Single-threaded baseline implementation |
+| OpenMP | Multi-threaded parallel implementation |
+| Fast (Optimized) | OpenMP + SIMD + compiler optimizations |
 
-The Pearson correlation coefficient between two vectors x and y is:
+---
 
-corr(x,y) =
-(n Σxy − Σx Σy) /
-sqrt[(n Σx^2 − (Σx)^2)(n Σy^2 − (Σy)^2)]
+## 3. Compilation
+
+Compile the project using:
+
+```bash
+make
+```
+
+Compiler flags used:
+
+```
+-O3 -march=native -fopenmp
+```
+
+- `-O3` → enables aggressive compiler optimizations  
+- `-march=native` → enables CPU-specific vector instructions (AVX2)  
+- `-fopenmp` → enables OpenMP multithreading support  
+
+---
+
+## 4. Execution
+
+Run the program using:
+
+```bash
+./correlate <ny> <nx> <threads> <mode>
+```
 
 Where:
-- Numerator → covariance
-- Denominator → product of standard deviations
-- Result ∈ [-1, 1]
 
-All arithmetic was performed using double precision to ensure numerical stability.
+- `threads` → number of OpenMP threads  
+- `mode` →  
+  - `0` = Sequential  
+  - `1` = OpenMP  
+  - `2` = Fast (Optimized)
 
-============================================================
+Example:
 
-3. Implemented Versions
+```bash
+./correlate 2000 2000 8 2
+```
 
-Three implementations were developed and compared.
+---
 
-------------------------------------------------------------
+## 5. Experimental Setup
 
-3.1 Sequential Baseline
+**Processor:** AMD Ryzen 5 5500U  
+- 6 Physical Cores  
+- 12 Hardware Threads  
+- AVX2 Support  
+- 4 MB L3 Cache  
 
-- Triple nested loop
-- All statistical values computed inside inner loop
-- No parallelism
-- Serves as performance baseline
+**Compiler:** GCC 11.4.0  
+**Environment:** WSL2  
 
-Time Complexity:
-O(ny^2 × nx)
+---
 
-------------------------------------------------------------
+# 6. Performance Results (2000 × 2000 Matrix)
 
-3.2 OpenMP Parallel Version
+## Execution Time Comparison
 
-Used:
+### 1 Thread
 
-#pragma omp parallel for collapse(2)
+| Version | Time (sec) |
+|----------|------------|
+| Sequential | 10.56 |
+| OpenMP | 10.56 |
+| Fast | 6.45 |
 
-- Parallelizes outer pair loops (i, j)
-- Each thread computes independent correlation pairs
-- No race conditions (each thread writes to unique result index)
+---
 
-This version exploits thread-level parallelism.
+### 4 Threads
 
-------------------------------------------------------------
+| Version | Time (sec) |
+|----------|------------|
+| Sequential | 10.56 |
+| OpenMP | 2.69 |
+| Fast | 1.80 |
 
-3.3 Optimized Version (SIMD + OpenMP)
+---
 
-Three major optimizations were introduced:
+### 8 Threads
 
-1) Precomputation of Mean and Variance
-   - Mean computed once per row
-   - Inverse standard deviation computed once per row
-   - Eliminates redundant statistical recomputation
+| Version | Time (sec) |
+|----------|------------|
+| Sequential | 10.56 |
+| OpenMP | ~1.21 |
+| Fast | ~1.03 |
 
-2) SIMD Vectorization
-   Used:
-   #pragma omp simd reduction(+:dot)
+---
 
-   - Enables AVX2 vector instructions
-   - Improves floating-point throughput
-   - Exploits instruction-level parallelism
+# 7. Speedup Analysis (Fast Version)
 
-3) Dynamic Scheduling
-   Used:
-   schedule(dynamic)
+Speedup formula:
 
-   - Improves load balancing
-   - Important because workload decreases as j ≤ i
+```
+Speedup = T1 / Tn
+```
 
-============================================================
+| Threads | Time (sec) | Speedup |
+|----------|------------|----------|
+| 1 | 6.45 | 1.00× |
+| 2 | 3.34 | 1.93× |
+| 4 | 1.89 | 3.41× |
+| 6 | 1.39 | 4.64× |
+| 8 | 1.21 | 5.33× |
+| 12 | 1.03 | 6.26× |
 
-4. Experimental Setup
+Parallel Efficiency at 12 threads:
 
-Processor: AMD Ryzen 5 5500U
-- 6 physical cores
-- 12 hardware threads
-- AVX2 supported
-- L3 Cache: 4 MB
+```
+Efficiency ≈ 6.26 / 12 ≈ 52%
+```
 
-Compiler: GCC 11.4.0
+Efficiency peaks near the physical core count (6 threads) and decreases beyond that due to SMT overhead and memory limitations.
 
-Compilation Flags:
--O3 -march=native -fopenmp
+---
 
-Explanation:
-- -O3 → aggressive optimization
-- -march=native → enable CPU-specific instructions (AVX2)
-- -fopenmp → enable multithreading
+# 8. Larger Matrix Scaling (3000 × 3000)
 
-Experiments conducted in WSL2.
+Fast Version:
 
-============================================================
-
-5. Performance Results (2000 x 2000)
-
-5.1 Version Comparison
-
-Sequential (1 thread)   : 10.56 sec
-Parallel (4 threads)    :  2.69 sec
-Optimized (4 threads)   :  1.80 sec
-
-Speedup vs Sequential:
-
-Parallel (4 threads):
-10.56 / 2.69 ≈ 3.92x
-
-Optimized (4 threads):
-10.56 / 1.80 ≈ 5.86x
+| Threads | Time (sec) | Speedup |
+|----------|------------|----------|
+| 1 | 21.95 | 1.00× |
+| 6 | 4.90 | 4.48× |
+| 12 | 3.49 | 6.29× |
 
 Observation:
-The optimized implementation provides nearly 6× improvement over baseline.
 
-============================================================
+Scaling improves for larger matrices, indicating better utilization of computational resources for heavier workloads.
 
-6. Thread Scaling – Optimized Version (2000 x 2000)
+---
 
-Threads   Time (s)   Speedup
---------------------------------
-1         6.45       1.00x
-2         3.34       1.93x
-4         1.89       3.41x
-6         1.39       4.64x
-8         1.21       5.33x
-12        1.03       6.26x
+# 9. Performance Counter Highlights (perf)
 
-Observations:
+Sequential (1 Thread):
+- ~80B instructions  
+- IPC ≈ 1.98  
+- Full single-core utilization  
 
-- Near-linear scaling up to 6 threads (physical cores).
-- Diminishing returns beyond 6 threads.
-- Final speedup ≈ 6.26x.
-
-This matches expected behavior on a 6-core CPU with SMT.
-
-============================================================
-
-7. Larger Matrix Scaling (3000 x 3000)
-
-Optimized Version:
-
-Threads   Time (s)   Speedup
---------------------------------
-1         21.95      1.00x
-6         4.90       4.48x
-12        3.49       6.29x
-
-Observations:
-
-- Larger matrix improves parallel efficiency.
-- Scaling remains strong at 12 threads.
-- Confirms algorithm benefits more as problem size increases.
-
-============================================================
-
-8. Performance Counter Analysis (perf)
-
-Sequential (1 thread):
-
-- Cycles: 40.68B
-- Instructions: 80.44B
-- IPC: 1.98
-- CPU utilization: 1.0
-
-Optimized (12 threads):
-
-- Cycles: 45.59B
-- Instructions: 72.49B
-- IPC: 1.59
-- CPU utilization: 10.22
+Optimized (12 Threads):
+- ~72B instructions  
+- IPC ≈ 1.59  
+- ~10 CPU cores actively utilized  
 
 Interpretation:
 
-1) Instruction Count Reduction
-Optimized version executes fewer instructions, confirming reduced redundant computation.
+- Instruction count reduced due to optimization.
+- Lower IPC in parallel mode due to memory contention.
+- High CPU utilization confirms effective multithreading.
 
-2) IPC Reduction in Parallel Mode
-Lower IPC in parallel mode is expected due to:
-- Increased memory traffic
-- Cache contention
-- Thread competition for resources
+---
 
-3) High CPU Utilization
-10.22 CPUs utilized confirms effective multi-core execution.
+# 10. Optimization Techniques Used
 
-============================================================
+- Precomputation of row means and normalization factors  
+- Lower triangular computation only  
+- OpenMP parallelization  
+- Loop collapse for nested loops  
+- SIMD reduction pragma  
+- Compiler optimization with `-O3`  
+- Improved memory access locality  
 
-9. Bottleneck Analysis
+---
 
-The algorithm is memory-intensive:
+# 11. Observations
 
-- Each correlation requires full row traversal.
-- High memory bandwidth demand.
-- Large working set size.
+- Time complexity grows approximately **O(ny² × nx)**.
+- Parallel implementation significantly reduces runtime.
+- Speedup scales nearly linearly up to physical core count.
+- Hyper-threading provides smaller additional gains.
+- Memory bandwidth limits scaling at higher thread counts.
+- SIMD improves inner-loop arithmetic throughput.
 
-Scaling is primarily limited by:
+---
 
-- Memory bandwidth saturation
-- Cache hierarchy limitations
-- SMT resource sharing
+# 12. Conclusion
 
-Performance gains reduce beyond physical core count.
+The optimized implementation successfully combines:
 
-============================================================
+- Thread-level parallelism (OpenMP)
+- Instruction-level parallelism (SIMD)
+- Compiler-level optimizations
 
-10. Key Insights
+It achieves over **6× speedup** on a 6-core processor.
 
-1. OpenMP significantly reduces runtime.
-2. SIMD improves floating-point throughput.
-3. Near-linear scaling up to physical core count.
-4. Larger matrices improve parallel efficiency.
-5. Memory subsystem becomes primary bottleneck.
+The experiment demonstrates effective parallel design while highlighting real-world limitations such as memory bandwidth and cache hierarchy constraints.
 
-============================================================
-
-11. Conclusion
-
-The optimized OpenMP + SIMD implementation achieved:
-
-- ~6× speedup over sequential baseline
-- Efficient scaling on 6-core architecture
-- Effective utilization of AVX2 instructions
-- Significant reduction in redundant computations
+---
