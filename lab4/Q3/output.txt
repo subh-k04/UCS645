@@ -1,0 +1,12 @@
+Process 0: Generated numbers: 897 802 765 992 1 521 220 380 729 969 
+Process 0: Local max = 992, Local min = 1
+Process 1: Generated numbers: 459 690 292 962 826 247 545 861 397 247 
+Process 1: Local max = 962, Local min = 247
+Process 2: Generated numbers: 396 320 854 42 916 336 57 348 862 110 
+Process 2: Local max = 916, Local min = 42
+Process 3: Generated numbers: 189 647 62 365 658 870 406 144 48 919 
+Process 3: Local max = 919, Local min = 48
+
+--- Global Results ---
+Global Maximum: 992 (found on Process 0)
+Global Minimum: 1 (found on Process 0)

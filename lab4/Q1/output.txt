@@ -1,0 +1,9 @@
+Process 0: Sending 100 to process 1
+Process 1: Received 100 from process 0
+Process 1: Sending 101 to process 2
+Process 2: Received 101 from process 1
+Process 2: Sending 103 to process 3
+Process 3: Received 103 from process 2
+Process 3: Sending 106 to process 0
+Process 0: Received 106 from process 3
+Process 0: Final value after traversing the ring = 106

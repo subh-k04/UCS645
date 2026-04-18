@@ -1,0 +1,9 @@
+Vector A: 1 2 3 4 5 6 7 8 
+Vector B: 8 7 6 5 4 3 2 1 
+
+Process 0: Partial dot product = 22 (A[0..1] * B[0..1])
+
+Global Dot Product: A . B = 120
+Process 1: Partial dot product = 38 (A[2..3] * B[2..3])
+Process 2: Partial dot product = 38 (A[4..5] * B[4..5])
+Process 3: Partial dot product = 22 (A[6..7] * B[6..7])

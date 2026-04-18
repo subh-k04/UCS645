@@ -1,0 +1,7 @@
+Process 0: Initializing array[100] = {1, 2, 3, ..., 100}
+Process 0: Local sum = 325 (elements 1 to 25)
+Process 1: Local sum = 950 (elements 26 to 50)
+Process 3: Local sum = 2200 (elements 76 to 100)
+Process 2: Local sum = 1575 (elements 51 to 75)
+Process 0: Global sum = 5050
+Process 0: Average = 50.5
