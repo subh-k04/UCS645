@@ -67,13 +67,6 @@ Highlights master-slave dynamic distribution and limits of Amdahl's Law.
 | 4 | 0.000018 | 2.72 | 68.1% |
 | 8 | 0.000016 | 3.06 | 38.3% |
 
-DAXPY Speedup Chart:
-Processes
-    1 | ■ 1.00
-    2 | ■■ 1.23
-    4 | ■■■■ 2.72
-    8 | ■■■■■ 3.06
-
 ### Q2 — Broadcast Race Comparison
 
 | Processes | MyBcast (s) | MPI_Bcast (s) | Speedup Ratio |
@@ -83,14 +76,6 @@ Processes
 | 8  | 1.381668 | 0.190880 | 7.24x  |
 | 16 | 4.729401 | 0.619101 | 7.64x  |
 
-Broadcast Time Comparison Chart:
-Processes
-    2 | ■■               | ·
-    4 | ■■■■■■           | ·
-    8 | ■■■■■■■■■■■      | ■
-   16 | ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ | ■■■■■
-(Each ■ ≈ 0.12s)
-
 ### Q3 — Dot Product Speedup
 
 | Processes | Time (s) | Speedup | Efficiency |
@@ -99,18 +84,6 @@ Processes
 | 2 | 106.249255 | 1.49 | 74.5%  |
 | 4 | 64.263446  | 2.46 | 61.5%  |
 | 8 | 44.558343  | 3.55 | 44.4%  |
-
-Dot Product Speedup vs Ideal:
-Speedup
-8 |                              (ideal)
-7 |                         *
-6 |                    *
-5 |               *
-4 |          *
-3 |     *              ● 3.55 (actual at 8p)
-2 |  *         ● 2.46 (actual at 4p)
-1 | ●─────────────────────────── Processes
-1    2    4    8
 
 ## 5. Scaling Observations
 
