@@ -1,0 +1,4 @@
+Found perfect number: 6
+Found perfect number: 28
+Found perfect number: 496
+Found perfect number: 8128

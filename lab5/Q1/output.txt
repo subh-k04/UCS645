@@ -1,0 +1,12 @@
+Sequential time: 0.000050 sec
+Parallel time: 0.000049 sec
+Speedup: 1.015611
+Sequential time: 0.000077 sec
+Parallel time: 0.000040 sec
+Speedup: 1.922014
+Sequential time: 0.000068 sec
+Parallel time: 0.000018 sec
+Speedup: 3.810532
+Sequential time: 0.000092 sec
+Parallel time: 0.000016 sec
+Speedup: 5.756692
