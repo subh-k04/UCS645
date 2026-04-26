@@ -1,8 +1,11 @@
 # Lab 6 — Introduction to CUDA
 
 **Course:** UCS645 — Parallel & Distributed Computing
+
 **GPU:** NVIDIA GeForce GTX 1650 (Turing, Compute 7.5)
+
 **CUDA Version:** 13.2
+
 **Platform:** Windows 11
 
 ## 1. Overview
