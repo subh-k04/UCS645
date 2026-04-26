@@ -1,0 +1,5 @@
+Array size: 1000
+CPU Merge Sort Time (QueryPerformanceCounter): 0.294400 ms
+GPU Merge Sort Time (cudaEvent): 0.481568 ms
+Speedup (CPU/GPU): 0.611336
+GPU Validation: SUCCESS

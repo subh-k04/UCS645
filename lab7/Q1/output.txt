@@ -1,0 +1,6 @@
+Thread 1023 ranking in, doing nothing.
+Thread 2 ranking in, doing nothing.
+Expected: 524800
+Iterative sum (Thread 0): 524800
+Formula sum (Thread 1): 524800
+Verification: MATCH

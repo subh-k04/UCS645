@@ -1,0 +1,5 @@
+1.2 - Kernel Execution Time: 0.186016 ms
+Sample result C[0] = 3.000000 (expected 3.0)
+1.3 - Theoretical Bandwidth: 192.032000 GB/s
+1.4 - Measured Bandwidth: 67.644247 GB/s
+1.4 - Bandwidth Efficiency: 35.225508 %
