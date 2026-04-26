@@ -1,0 +1,4 @@
+Array Size: 1000000
+Expected Sum: 1000000.0
+Computed Sum: 1000000.0
+Time Taken (ms): 0.960480

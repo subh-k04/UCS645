@@ -1,0 +1,11 @@
+GPU Name: NVIDIA GeForce GTX 1650
+Compute Capability: 7.5
+Total Global Memory (MB): 4095.69
+Shared Memory per Block (KB): 48.00
+Constant Memory (KB): 64.00
+Warp Size: 32
+Max Threads per Block: 1024
+Max Block Dimensions: x=1024, y=1024, z=64
+Max Grid Dimensions: x=2147483647, y=65535, z=65535
+Number of Multiprocessors: 14
+Double Precision Support: Yes
