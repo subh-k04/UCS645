@@ -1,0 +1,7 @@
+Threads: 1, Time: 0.000264, Speedup: 1.00
+Threads: 2, Time: 0.000529, Speedup: 0.498410
+Threads: 4, Time: 0.000633, Speedup: 0.416388
+Threads: 6, Time: 0.000611, Speedup: 0.431261
+Threads: 8, Time: 0.001218, Speedup: 0.216487
+Threads: 12, Time: 0.013692, Speedup: 0.019252
+Max speedup achieved with 2 threads.

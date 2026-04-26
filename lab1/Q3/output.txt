@@ -1,0 +1,6 @@
+Threads: 1, Pi: 3.1415926536, Time: 0.661888, Speedup: 1.00
+Threads: 2, Pi: 3.1415926536, Time: 0.322376, Speedup: 2.053156
+Threads: 4, Pi: 3.1415926536, Time: 0.169647, Speedup: 3.901564
+Threads: 6, Pi: 3.1415926536, Time: 0.116502, Speedup: 5.681324
+Threads: 8, Pi: 3.1415926536, Time: 0.089396, Speedup: 7.404032
+Final Pi: 3.1415926536, Error vs M_PI: 2.2648549702e-14

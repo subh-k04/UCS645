@@ -1,0 +1,9 @@
+Version: Sequential, Threads: 1, Time: 6.151953, Speedup: 1.00
+Version: 1D, Threads: 2, Time: 3.819200, Speedup: 1.610796
+Version: 1D, Threads: 4, Time: 1.897448, Speedup: 3.242225
+Version: 1D, Threads: 6, Time: 1.385969, Speedup: 4.438740
+Version: 1D, Threads: 8, Time: 1.106472, Speedup: 5.559971
+Version: 2D, Threads: 2, Time: 3.571353, Speedup: 1.722583
+Version: 2D, Threads: 4, Time: 1.963235, Speedup: 3.133580
+Version: 2D, Threads: 6, Time: 1.385270, Speedup: 4.440977
+Version: 2D, Threads: 8, Time: 1.090522, Speedup: 5.641294
